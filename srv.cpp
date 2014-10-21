@@ -1,6 +1,8 @@
 #include	"../key/unp.h"
 #include	<ctime>
+#include <cstdlib>
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 int main(int argc, char **argv)
@@ -27,17 +29,28 @@ int main(int argc, char **argv)
 	char line[1000];
     cout << "Working..." << endl;
     string s("");
-   // sockaddr ipsave;
-    //ipsave.sa_family = AF_INET;
+    sockaddr ipsave;
+    ipsave.sa_family = AF_INET;
+    stringstream str;
+    string fixedip("");
     while(true)
     {
     //	connfd = accept(listenfd, (SA *) &ipsave, NULL);
     	connfd = accept(listenfd, (SA *) NULL, NULL);
-
-        snprintf(buff, sizeof(buff), "Hello, client #%i say something\n",counter++);
+        int len = sizeof(struct sockaddr);
+        getsockname(connfd, (SA *) &servaddr,(socklen_t *) &len);
+        
+        str << int(servaddr.sin_addr.s_addr&0xFF) <<"."
+        <<int((servaddr.sin_addr.s_addr&0xFF00)>>8)<<"."
+       << int((servaddr.sin_addr.s_addr&0xFF0000)>>16)<<"."
+       << int((servaddr.sin_addr.s_addr&0xFF000000)>>24);            
+        str >> fixedip;
+        snprintf(buff, sizeof(buff), "Hello, %s, say something\n",fixedip.c_str());
         write(connfd, buff, strlen(buff));
-        s = "New client\n";
-        //cout << s << ipsave.sa_data;
+        s = "New client ";
+        
+        s+=fixedip;
+        s+="\n";
         cout << s;
 	    while(true)
         {

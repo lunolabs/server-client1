@@ -24,16 +24,34 @@ int main(int argc, char **argv)
 	listen(listenfd, LISTENQ);
     cout << "Listening" << endl;
 	int counter = 1;
-	while(true)
+	char line[1000];
+    cout << "Working..." << endl;
+    string s("");
+   // sockaddr ipsave;
+    //ipsave.sa_family = AF_INET;
+    while(true)
     {
-        cout << "Working..." << endl;
-		connfd = accept(listenfd, (SA *) NULL, NULL);
+    //	connfd = accept(listenfd, (SA *) &ipsave, NULL);
+    	connfd = accept(listenfd, (SA *) NULL, NULL);
 
-        ticks = time(NULL);
-
-        snprintf(buff, sizeof(buff), "Hello, client #%i \n",counter++);
+        snprintf(buff, sizeof(buff), "Hello, client #%i say something\n",counter++);
         write(connfd, buff, strlen(buff));
-
+        s = "New client\n";
+        //cout << s << ipsave.sa_data;
+        cout << s;
+	    while(true)
+        {
+	        if(read(connfd, line, 9999))
+	        {
+                s = line;
+    	    	cout << s << endl;
+    	    }
+	        else
+	        {
+	        	cout << "Client disconnected\n";    
+                break;
+            }   
+		}
 		close(connfd);
-	}
+    }
 }

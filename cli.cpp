@@ -1,13 +1,26 @@
-#include	"../key/unp.h"
+#include "../key/unp.h"
 #include <iostream>
 #include <fstream>
 #include <string>
 
 using namespace std;
+
+int kbhit (void)
+{
+    struct timeval tv;
+    fd_set rdfs;
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;          
+    FD_ZERO(&rdfs);
+    FD_SET (STDIN_FILENO, &rdfs);
+    select(STDIN_FILENO+1, &rdfs, NULL, NULL, &tv);
+    return FD_ISSET(STDIN_FILENO, &rdfs);                    
+}
+
+
 int main(int argc, char **argv)
 {
 	int	sockfd, n;
-//	char buff[100];
     struct sockaddr_in	servaddr;
 	if (argc != 2)
     {
@@ -23,7 +36,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        cout <<" "<< (char*) record->h_name<< endl;    
+        cout << "IP server: " << (char*) record->h_name<< endl;    
     }    
     in_addr *addressptr = (in_addr *) record->h_addr;
 
@@ -39,30 +52,31 @@ int main(int argc, char **argv)
     if(r < 0)
 		cerr << "connect error" << endl;
     else
-        cout << " connect success " << endl;
-    FILE * r_connection=fdopen(sockfd, "r");
-    FILE * w_connection=fdopen(sockfd, "w");
+        cout << "connect success" << endl;
+   
     char line[1000];
-	string s("");
+    string s("");   
     while(true) 
-    { 
-        char *ch=fgets(line, 9999, r_connection);
-        if (ch==NULL)
-        { 
-            printf("Disconnected\n");
+    {
+        //cout << "Client: "; 
+        if(kbhit())
+             getline(cin,s);
+	    else
+            s="||||";
+        write(sockfd, s.c_str(),s.size()+1);
+	     
+        if(read(sockfd,line,9999))
+        {
+            s=line;
+            if(s!="||||") 
+                cout << "Server: " << line << endl;
+        }
+        else
+        {
+            cout << "disconnected" << endl;
             break; 
         }
-	    else
-	    {
-            cout << line;	
-        //	fputs(line, w_connection);
-        //	write(sockfd, buff, strlen(buff));
-	        while(true)
-            {	
-       	        getline(cin,s);
-	    	    write(sockfd, s.c_str(),s.size()+1);
-	        }
-        }
+        usleep(50000);
     }
 	return 0;
 }

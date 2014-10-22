@@ -1,17 +1,32 @@
-#include	"../key/unp.h"
-#include	<ctime>
+#include "../key/unp.h"
+#include <ctime>
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
 using namespace std;
+
+
+int kbhit (void)
+{
+    struct timeval tv;
+    fd_set rdfs;
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;          
+    FD_ZERO(&rdfs);
+    FD_SET (STDIN_FILENO, &rdfs);
+    select(STDIN_FILENO+1, &rdfs, NULL, NULL, &tv);
+    return FD_ISSET(STDIN_FILENO, &rdfs);                    
+}
+
+
 
 int main(int argc, char **argv)
 {
 	int listenfd, connfd;
 	struct sockaddr_in servaddr;
 	char buff[MAXLINE];
-	time_t ticks;
-    cout << "Setting up socket" << endl;
+	//time_t ticks;
+    //cout << "Setting up socket" << endl;
 	listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	bzero(&servaddr, sizeof(servaddr));
@@ -19,52 +34,63 @@ int main(int argc, char **argv)
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr.sin_port        = htons(1352);	/* daytime server */
 
-    cout << "Binding servaddr" << endl;
+    //cout << "Binding servaddr" << endl;
 	bind(listenfd, (SA *) &servaddr, sizeof(servaddr));
 
-    cout << "Preparing to listen" << endl;
+    //cout << "Preparing to listen" << endl;
 	listen(listenfd, LISTENQ);
-    cout << "Listening" << endl;
-	int counter = 1;
-	char line[1000];
+    //cout << "Listening" << endl;
+    
     cout << "Working..." << endl;
-    string s("");
+    
     sockaddr ipsave;
     ipsave.sa_family = AF_INET;
-    stringstream str;
-    string fixedip("");
+    
+	int counter = 1;
+	char line[1000];
+    string s("");
+    
     while(true)
     {
-    //	connfd = accept(listenfd, (SA *) &ipsave, NULL);
     	connfd = accept(listenfd, (SA *) NULL, NULL);
         int len = sizeof(struct sockaddr);
         getsockname(connfd, (SA *) &servaddr,(socklen_t *) &len);
         
-        str << int(servaddr.sin_addr.s_addr&0xFF) <<"."
-        <<int((servaddr.sin_addr.s_addr&0xFF00)>>8)<<"."
-       << int((servaddr.sin_addr.s_addr&0xFF0000)>>16)<<"."
-       << int((servaddr.sin_addr.s_addr&0xFF000000)>>24);            
+        stringstream str;
+        str << int(servaddr.sin_addr.s_addr&0xFF)        <<"."
+        << int((servaddr.sin_addr.s_addr&0xFF00)>>8)     <<"."
+        << int((servaddr.sin_addr.s_addr&0xFF0000)>>16)  <<"."
+        << int((servaddr.sin_addr.s_addr&0xFF000000)>>24);
+        
+        string fixedip(""); 
         str >> fixedip;
         snprintf(buff, sizeof(buff), "Hello, %s, say something\n",fixedip.c_str());
-        write(connfd, buff, strlen(buff));
-        s = "New client ";
         
-        s+=fixedip;
-        s+="\n";
-        cout << s;
+        write(connfd, buff, strlen(buff));
+  
+        cout << "New client: " << fixedip << endl;
+        //char strn[1000];
 	    while(true)
         {
-	        if(read(connfd, line, 9999))
+            //cout << "Server: ";
+            if (kbhit())
+                getline(cin,s);
+            else
+                s="||||";
+            write(connfd, s.c_str(), s.size()+1);
+            if(read(connfd, line, 9999))
 	        {
                 s = line;
-    	    	cout << s << endl;
+                if(s!="||||")
+    	            cout << "Client: " << line << endl;
     	    }
 	        else
 	        {
-	        	cout << "Client disconnected\n";    
+	            cout << "Client disconnected\n";    
                 break;
             }   
-		}
+	    
+    	}
 		close(connfd);
     }
 }

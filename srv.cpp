@@ -92,13 +92,19 @@ int main(int argc, char **argv)
 	        {
                 s = line;
                 if(s!="||||")
-    	            cout << cliname << ": " << line << endl;
-    	    }
+                {
+                    system("echo -n \"\\033[34m\"");
+                    cout << cliname << ": " << line << endl;
+                    system("echo -n \"\\033[0m\"");
+                    system("mpg123 -q ./sound.mp3");
+    	        }
+            }
 	        else
 	        {
 	            cout << "Client disconnected\n";    
                 break;
             }   
+            usleep(1000000);
 	    
     	}
 		close(connfd);

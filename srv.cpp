@@ -27,7 +27,13 @@ int main(int argc, char **argv)
 	char buff[MAXLINE];
 	//time_t ticks;
     //cout << "Setting up socket" << endl;
-	listenfd = socket(AF_INET, SOCK_STREAM, 0);
+    string username("Server");
+    if(argc == 2)
+    {
+        username = argv[1];    
+    }
+    
+    listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
 	bzero(&servaddr, sizeof(servaddr));
 	servaddr.sin_family      = AF_INET;
@@ -48,7 +54,7 @@ int main(int argc, char **argv)
     
 	int counter = 1;
 	char line[1000];
-    string s("");
+    string s("||||");
     
     while(true)
     {
@@ -64,6 +70,10 @@ int main(int argc, char **argv)
         
         string fixedip(""); 
         str >> fixedip;
+        char cliname[100];
+        read(connfd, cliname, 100);
+        write(connfd, username.c_str(), 999);
+
         snprintf(buff, sizeof(buff), "Hello, %s, say something\n",fixedip.c_str());
         
         write(connfd, buff, strlen(buff));
@@ -82,7 +92,7 @@ int main(int argc, char **argv)
 	        {
                 s = line;
                 if(s!="||||")
-    	            cout << "Client: " << line << endl;
+    	            cout << cliname << ": " << line << endl;
     	    }
 	        else
 	        {

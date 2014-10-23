@@ -22,10 +22,15 @@ int main(int argc, char **argv)
 {
 	int	sockfd, n;
     struct sockaddr_in	servaddr;
-	if (argc != 2)
+	if (argc != 2 && argc!=3)
     {
 		cerr << "usage: a.out <IPaddress>";
         return 0;
+    }
+    string username("Client");
+    if(argc == 3)
+    {
+        username = argv[2];    
     }
 	char *recvline = argv[1];
     hostent *record = gethostbyname(recvline);
@@ -53,9 +58,11 @@ int main(int argc, char **argv)
 		cerr << "connect error" << endl;
     else
         cout << "connect success" << endl;
-   
+    write(sockfd, username.c_str(),username.size()+1);
+    char servname[100];
+    read(sockfd, servname, 999);
     char line[1000];
-    string s("");   
+    string s("||||");   
     while(true) 
     {
         //cout << "Client: "; 
@@ -69,7 +76,7 @@ int main(int argc, char **argv)
         {
             s=line;
             if(s!="||||") 
-                cout << "Server: " << line << endl;
+                cout << servname << ": " << line << endl;
         }
         else
         {

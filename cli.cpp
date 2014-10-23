@@ -62,6 +62,8 @@ int main(int argc, char **argv)
     char servname[100];
     read(sockfd, servname, 999);
     char line[1000];
+    short flagbuf=0;
+    string buf("");
     string s("||||");   
     while(true) 
     {
@@ -70,6 +72,21 @@ int main(int argc, char **argv)
              getline(cin,s);
 	    else
             s="||||";
+        if( s == "\\\\")
+        {
+        //    cout << "writing mode" << endl;
+            flagbuf=1;
+            s="||||";
+        }
+        if( s != "||||" && flagbuf==1)
+        {
+            system("echo -n \"\\033[34m\"");
+            cout << buf;
+            system("echo -n \"\\033[0m\"");
+            system("mpg123 -q ./song.mp3");
+            buf="";
+            flagbuf=0;
+        }
         write(sockfd, s.c_str(),s.size()+1);
 	     
         if(read(sockfd,line,9999))
@@ -77,10 +94,19 @@ int main(int argc, char **argv)
             s=line;
             if(s!="||||") 
             {
-               system("echo -n \"\\033[34m\"");
-               cout << servname << ": " << line << endl;
-               system("echo -n \"\\033[0m\"");
-               system("mpg123 -q ./song.mp3");
+                if(flagbuf==0)
+                {
+                    system("echo -n \"\\033[34m\"");
+                    cout << servname << ": " << s << endl;
+                    system("echo -n \"\\033[0m\"");
+                }
+                else
+                {
+                    buf+=servname;
+                    buf+=s;
+                    buf+="\n";
+                }
+                system("mpg123 -q ./song.mp3");
             }
         }
         else
@@ -88,7 +114,7 @@ int main(int argc, char **argv)
             cout << "disconnected" << endl;
             break; 
         }
-        usleep(1000000);
+        usleep(200000);
     }
 	return 0;
 }

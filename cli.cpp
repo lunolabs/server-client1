@@ -76,14 +76,19 @@ int main(int argc, char **argv)
         {
             s=line;
             if(s!="||||") 
-                cout << servname << ": " << line << endl;
+            {
+               system("echo -n \"\\033[34m\"");
+               cout << servname << ": " << line << endl;
+               system("echo -n \"\\033[0m\"");
+               system("mpg123 -q ./song.mp3");
+            }
         }
         else
         {
             cout << "disconnected" << endl;
             break; 
         }
-        usleep(50000);
+        usleep(1000000);
     }
 	return 0;
 }

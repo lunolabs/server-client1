@@ -68,8 +68,8 @@ int main(int argc, char **argv)
         
         write(connfd, buff, strlen(buff));
   
-        cout << "New client: " << fixedip << endl;
-	  
+        cout << "New client: " << fixedip << endl;  
+        system("mpg123 -q ./sound.mp3");
         short flagbuf=0;
         short flagconnect=1; 
 	    char line[1000];
@@ -94,7 +94,8 @@ int main(int argc, char **argv)
                 system("echo -n \"\\033[34m\"");
                 cout << buf;
                 system("echo -n \"\\033[0m\"");
-                system("mpg123 -q ./sound.mp3");
+                if(!buf.empty())
+                    system("mpg123 -q ./sound.mp3");
                 buf="";
                 flagbuf=0;
             }
@@ -109,7 +110,7 @@ int main(int argc, char **argv)
                     {
                         system("echo -n \"\\033[34m\"");
                         cout << cliname << ": " << s << endl;
-                        system("echo -n \"\\033[0m\"");
+                        system("echo -n \"\\033[0m\"");             
                     }
                     else
                     {

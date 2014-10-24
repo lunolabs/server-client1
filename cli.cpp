@@ -59,22 +59,24 @@ int main(int argc, char **argv)
     else
         cout << "connect success" << endl;
     write(sockfd, username.c_str(),username.size()+1);
+    
     char servname[100];
     read(sockfd, servname, 999);
+
     char line[1000];
     short flagbuf=0;
+    short flagconnect=1;
     string buf("");
     string s("||||");   
-    while(true) 
+
+    while(flagconnect) 
     {
-        //cout << "Client: "; 
         if(kbhit())
              getline(cin,s);
 	    else
             s="||||";
         if( s == "\\\\")
         {
-        //    cout << "writing mode" << endl;
             flagbuf=1;
             s="||||";
         }
@@ -103,6 +105,7 @@ int main(int argc, char **argv)
                 else
                 {
                     buf+=servname;
+                    buf+=": ";
                     buf+=s;
                     buf+="\n";
                 }
@@ -112,7 +115,7 @@ int main(int argc, char **argv)
         else
         {
             cout << "disconnected" << endl;
-            break; 
+            flagconnect=0;; 
         }
         usleep(200000);
     }

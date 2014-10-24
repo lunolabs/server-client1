@@ -79,33 +79,61 @@ int main(int argc, char **argv)
         write(connfd, buff, strlen(buff));
   
         cout << "New client: " << fixedip << endl;
-        //char strn[1000];
-	    while(true)
+	  
+        string buf("");
+        short flagbuf=0;
+        short flagconnect=1;
+      
+        while(flagconnect)
         {
-            //cout << "Server: ";
+            //cout << "Server: "; 
             if (kbhit())
                 getline(cin,s);
             else
                 s="||||";
-            write(connfd, s.c_str(), s.size()+1);
-            if(read(connfd, line, 9999))
-	        {
-                s = line;
-                if(s!="||||")
+            if( s == "\\\\")
+            {
+            //    cout << "writing mode" << endl;
+                flagbuf=1;
+                s="||||";
+            }
+            if( s != "||||" && flagbuf==1)
+            {
+                system("echo -n \"\\033[34m\"");
+                cout << buf;
+                system("echo -n \"\\033[0m\"");
+                system("mpg123 -q ./song.mp3");
+                buf="";
+                flagbuf=0;
+            }
+            write(connfd, s.c_str(),s.size()+1);
+             
+            if(read(connfd,line,9999))
+            {
+                s=line;
+                if(s!="||||") 
                 {
-                    system("echo -n \"\\033[34m\"");
-                    cout << cliname << ": " << line << endl;
-                    system("echo -n \"\\033[0m\"");
-                    system("mpg123 -q ./sound.mp3");
-    	        }
+                    if(flagbuf==0)
+                    {
+                        system("echo -n \"\\033[34m\"");
+                        cout << cliname << ": " << s << endl;
+                        system("echo -n \"\\033[0m\"");
+                    }
+                    else
+                    {
+                        buf+=cliname;
+                        buf+=": ";
+                        buf+=s;
+                        buf+="\n";
+                    }
+                    system("mpg123 -q ./song.mp3");
+                }
             }
 	        else
 	        {
 	            cout << "Client disconnected\n";    
-                break;
+                flagconnect=0;
             }   
-            usleep(1000000);
-	    
     	}
 		close(connfd);
     }

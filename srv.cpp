@@ -25,8 +25,6 @@ int main(int argc, char **argv)
 	int listenfd, connfd;
 	struct sockaddr_in servaddr;
 	char buff[MAXLINE];
-	//time_t ticks;
-    //cout << "Setting up socket" << endl;
     string username("Server");
     if(argc == 2)
     {
@@ -39,22 +37,14 @@ int main(int argc, char **argv)
 	servaddr.sin_family      = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr.sin_port        = htons(1352);	/* daytime server */
-
-    //cout << "Binding servaddr" << endl;
 	bind(listenfd, (SA *) &servaddr, sizeof(servaddr));
-
-    //cout << "Preparing to listen" << endl;
 	listen(listenfd, LISTENQ);
-    //cout << "Listening" << endl;
     
     cout << "Working..." << endl;
     
     sockaddr ipsave;
     ipsave.sa_family = AF_INET;
     
-	int counter = 1;
-	char line[1000];
-    string s("||||");
     
     while(true)
     {
@@ -80,10 +70,12 @@ int main(int argc, char **argv)
   
         cout << "New client: " << fixedip << endl;
 	  
-        string buf("");
         short flagbuf=0;
-        short flagconnect=1;
-      
+        short flagconnect=1; 
+	    char line[1000];
+        string s("||||");    
+        string buf("");
+
         while(flagconnect)
         {
             //cout << "Server: "; 
@@ -102,7 +94,7 @@ int main(int argc, char **argv)
                 system("echo -n \"\\033[34m\"");
                 cout << buf;
                 system("echo -n \"\\033[0m\"");
-                system("mpg123 -q ./song.mp3");
+                system("mpg123 -q ./sound.mp3");
                 buf="";
                 flagbuf=0;
             }
@@ -126,7 +118,7 @@ int main(int argc, char **argv)
                         buf+=s;
                         buf+="\n";
                     }
-                    system("mpg123 -q ./song.mp3");
+                    system("mpg123 -q ./sound.mp3");
                 }
             }
 	        else

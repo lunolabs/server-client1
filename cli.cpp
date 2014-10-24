@@ -71,8 +71,8 @@ int main(int argc, char **argv)
 
     while(flagconnect) 
     {
-        if(kbhit())
-             getline(cin,s);
+        if( kbhit() )
+            getline(cin,s);
 	    else
             s="||||";
         if( s == "\\\\")
@@ -80,12 +80,12 @@ int main(int argc, char **argv)
             flagbuf=1;
             s="||||";
         }
-        if( s != "||||" && flagbuf==1)
+        if( s != "||||" && flagbuf==1 )
         {
             system("echo -n \"\\033[34m\"");
             cout << buf;
             system("echo -n \"\\033[0m\"");
-            system("mpg123 -q ./song.mp3");
+            system("mpg123 -q ./sound.mp3");
             buf="";
             flagbuf=0;
         }
@@ -98,18 +98,18 @@ int main(int argc, char **argv)
             {
                 if(flagbuf==0)
                 {
-                    system("echo -n \"\\033[34m\"");
-                    cout << servname << ": " << s << endl;
-                    system("echo -n \"\\033[0m\"");
+                   system("echo -n \"\\033[34m\"");
+                   cout << servname << ": " << s << endl;
+                   system("echo -n \"\\033[0m\"");
                 }
                 else
                 {
-                    buf+=servname;
-                    buf+=": ";
-                    buf+=s;
-                    buf+="\n";
-                }
-                system("mpg123 -q ./song.mp3");
+                   buf+=servname;
+                   buf+=": ";
+                   buf+=s;
+                   buf+="\n";
+                 }
+                system("mpg123 -q ./sound.mp3");
             }
         }
         else
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
             cout << "disconnected" << endl;
             flagconnect=0;; 
         }
-        usleep(200000);
+        usleep(500000);
     }
 	return 0;
 }

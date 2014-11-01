@@ -1,26 +1,22 @@
-#include "../key/unp.h"
+#include "unp.hpp"
+#include "tools.hpp"
 #include <iostream>
 #include <fstream>
-#include <string>
+#include <cstdlib>
 
 using namespace std;
 
-int kbhit (void)
+void switcher(string &s, bool &on)
 {
-    struct timeval tv;
-    fd_set rdfs;
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;          
-    FD_ZERO(&rdfs);
-    FD_SET (STDIN_FILENO, &rdfs);
-    select(STDIN_FILENO+1, &rdfs, NULL, NULL, &tv);
-    return FD_ISSET(STDIN_FILENO, &rdfs);                    
+    if(s.empty())
+        return;
+    if(s=="q")
+        on=false;
 }
-
 
 int main(int argc, char **argv)
 {
-	int	sockfd, n;
+	int	sockfd;
     struct sockaddr_in	servaddr;
 	if (argc != 2 && argc!=3)
     {
@@ -64,8 +60,8 @@ int main(int argc, char **argv)
     read(sockfd, servname, 999);
 
     char line[1000];
-    short flagbuf=0;
-    short flagconnect=1;
+    bool flagbuf=false;
+    bool flagconnect=true;
     string buf("");
     string s("||||");   
 
@@ -77,17 +73,22 @@ int main(int argc, char **argv)
             s="||||";
         if( s == "\\\\")
         {
-            flagbuf=1;
+            flagbuf=true;
             s="||||";
         }
+        if(!s.compare(0,1,"\\"))
+            switcher(s.replace(0,1,""),flagconnect);
         if( s != "||||" && flagbuf==1 )
         {
-            system("echo -n \"\\033[34m\"");
-            cout << buf;
-            system("echo -n \"\\033[0m\"");
-            system("mpg123 -q ./sound.mp3");
-            buf="";
-            flagbuf=0;
+            if( buf!="" )
+            {
+                system("echo -n \"\\033[34m\"");
+                cout << buf;
+                system("echo -n \"\\033[0m\"");
+                system("mpg123 -q ./sound.mp3");
+                buf="";
+            }
+            flagbuf=false;
         }
         write(sockfd, s.c_str(),s.size()+1);
 	     
@@ -96,7 +97,7 @@ int main(int argc, char **argv)
             s=line;
             if(s!="||||") 
             {
-                if(flagbuf==0)
+                if(!flagbuf)
                 {
                    system("echo -n \"\\033[34m\"");
                    cout << servname << ": " << s << endl;
@@ -115,9 +116,9 @@ int main(int argc, char **argv)
         else
         {
             cout << "disconnected" << endl;
-            flagconnect=0;; 
+            flagconnect=false;; 
         }
-        usleep(500000);
+        usleep(10000);
     }
 	return 0;
 }

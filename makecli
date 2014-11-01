@@ -1,0 +1,15 @@
+FLAGSG=-c -Wall
+
+all: client
+
+client: cli.o tools.o
+	g++ cli.o tools.o -o client
+
+cli.o: cli.cpp
+	g++ $(FLAGSG) cli.cpp
+
+tools.o: tools.cpp
+	g++ $(FLAGSG) tools.cpp
+
+clean:
+	rm -rf *.o client

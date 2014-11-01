@@ -1,30 +1,26 @@
-#include "../key/unp.h"
-#include <ctime>
+#include "unp.hpp"
+#include "tools.hpp"
 #include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include <sstream>
+
 using namespace std;
 
-
-int kbhit (void)
+void switcher(string &s, bool &on)
 {
-    struct timeval tv;
-    fd_set rdfs;
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;          
-    FD_ZERO(&rdfs);
-    FD_SET (STDIN_FILENO, &rdfs);
-    select(STDIN_FILENO+1, &rdfs, NULL, NULL, &tv);
-    return FD_ISSET(STDIN_FILENO, &rdfs);                    
+    if(s.empty())
+        return;
+    if(s=="q")
+        on=false;
 }
-
-
 
 int main(int argc, char **argv)
 {
 	int listenfd, connfd;
 	struct sockaddr_in servaddr;
-	char buff[MAXLINE];
+	//char buff[MAXLINE];
+    string buff("");
     string username("Server");
     if(argc == 2)
     {
@@ -37,20 +33,16 @@ int main(int argc, char **argv)
 	servaddr.sin_family      = AF_INET;
 	servaddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	servaddr.sin_port        = htons(1352);	/* daytime server */
-	bind(listenfd, (SA *) &servaddr, sizeof(servaddr));
+	bind(listenfd, (struct sockaddr  *) &servaddr, sizeof(servaddr));
 	listen(listenfd, LISTENQ);
     
-    cout << "Working..." << endl;
-    
-    sockaddr ipsave;
-    ipsave.sa_family = AF_INET;
-    
+    cout << "Working..." << endl; 
     
     while(true)
     {
-    	connfd = accept(listenfd, (SA *) NULL, NULL);
+    	connfd = accept(listenfd, (struct sockaddr *) NULL, NULL);
         int len = sizeof(struct sockaddr);
-        getsockname(connfd, (SA *) &servaddr,(socklen_t *) &len);
+        getsockname(connfd, (struct sockaddr *) &servaddr,(socklen_t *) &len);
         
         stringstream str;
         str << int(servaddr.sin_addr.s_addr&0xFF)        <<"."
@@ -64,14 +56,17 @@ int main(int argc, char **argv)
         read(connfd, cliname, 100);
         write(connfd, username.c_str(), 999);
 
-        snprintf(buff, sizeof(buff), "Hello, %s, say something\n",fixedip.c_str());
-        
-        write(connfd, buff, strlen(buff));
+        //snprintf(buff, sizeof(buff), "Hello, %s, say something\n",fixedip.c_str());
+        buff+="Hello, ";
+        buff+=fixedip;
+        buff+="say something\n";
+
+        write(connfd, buff.c_str(), buff.size());
   
-        cout << "New client: " << fixedip << endl;  
-        system("mpg123 -q ./sound.mp3");
-        short flagbuf=0;
-        short flagconnect=1; 
+        cout << "New client: " << fixedip << endl;
+	  
+        bool flagbuf=false;
+        bool flagconnect=true; 
 	    char line[1000];
         string s("||||");    
         string buf("");
@@ -86,18 +81,20 @@ int main(int argc, char **argv)
             if( s == "\\\\")
             {
             //    cout << "writing mode" << endl;
-                flagbuf=1;
+                flagbuf=true;
                 s="||||";
             }
-            if( s != "||||" && flagbuf==1)
+            if(!s.compare(0,1,"\\"))
+                switcher(s.replace(0,1,""),flagconnect);
+
+            if( s != "||||" && flagbuf)
             {
                 system("echo -n \"\\033[34m\"");
                 cout << buf;
                 system("echo -n \"\\033[0m\"");
-                if(!buf.empty())
-                    system("mpg123 -q ./sound.mp3");
+                system("mpg123 -q ./sound.mp3");
                 buf="";
-                flagbuf=0;
+                flagbuf=false;
             }
             write(connfd, s.c_str(),s.size()+1);
              
@@ -106,11 +103,11 @@ int main(int argc, char **argv)
                 s=line;
                 if(s!="||||") 
                 {
-                    if(flagbuf==0)
+                    if(!flagbuf)
                     {
                         system("echo -n \"\\033[34m\"");
                         cout << cliname << ": " << s << endl;
-                        system("echo -n \"\\033[0m\"");             
+                        system("echo -n \"\\033[0m\"");
                     }
                     else
                     {
@@ -125,7 +122,7 @@ int main(int argc, char **argv)
 	        else
 	        {
 	            cout << "Client disconnected\n";    
-                flagconnect=0;
+                flagconnect=false;
             }   
     	}
 		close(connfd);

@@ -13,6 +13,7 @@ void switcher(string &s, bool &on)
         return;
     if(s=="q")
         on=false;
+	s="||||";
 }
 
 int main(int argc, char **argv)
@@ -92,7 +93,7 @@ int main(int argc, char **argv)
                 system("echo -n \"\\033[34m\"");
                 cout << buf;
                 system("echo -n \"\\033[0m\"");
-                system("mpg123 -q ./sound.mp3");
+                system("./mpg123/mpg123 -q ./sound.mp3");
                 buf="";
                 flagbuf=false;
             }
@@ -116,7 +117,7 @@ int main(int argc, char **argv)
                         buf+=s;
                         buf+="\n";
                     }
-                    system("mpg123 -q ./sound.mp3");
+                    system("./mpg123/mpg123 -q ./sound.mp3");
                 }
             }
 	        else

@@ -60,7 +60,7 @@ int main(int argc, char **argv)
         //snprintf(buff, sizeof(buff), "Hello, %s, say something\n",fixedip.c_str());
         buff+="Hello, ";
         buff+=fixedip;
-        buff+="say something\n";
+        buff+=" say something\n";
 
         write(connfd, buff.c_str(), buff.size());
   

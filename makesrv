@@ -1,0 +1,15 @@
+FLAGSG=-c -Wall
+
+all: server
+
+server: srv.o tools.o
+	g++ srv.o tools.o -o server
+
+srv.o: srv.cpp
+	g++ $(FLAGSG) srv.cpp
+
+tools.o: tools.cpp
+	g++ $(FLAGSG) tools.cpp
+
+clean:
+	rm -rf *.o server

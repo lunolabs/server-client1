@@ -1,8 +1,11 @@
 #include "tools.hpp"
 #include <cstdlib>
 #include <unistd.h>
+<<<<<<< HEAD
 #include <string>
 #include <iostream>
+=======
+>>>>>>> 65c32818b2cafcc18c5b5e033cc3c56761a2f0d0
 
 int kbhit (void)
 {
@@ -15,6 +18,7 @@ int kbhit (void)
     select(STDIN_FILENO+1, &rdfs, NULL, NULL, &tv);
     return FD_ISSET(STDIN_FILENO, &rdfs);                    
 }
+<<<<<<< HEAD
 
 std::string str_proc (std::string str)
 {
@@ -35,3 +39,5 @@ std::string str_proc (std::string str)
 	}
 	return str_proc(str);
 }
+=======
+>>>>>>> 65c32818b2cafcc18c5b5e033cc3c56761a2f0d0
